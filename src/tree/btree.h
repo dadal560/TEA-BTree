@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 /* Énumération pour les couleurs des nœuds */
-typedef enum { ROUGE, NOIR } Color;
+typedef enum { ROUGE, NOIR } Couleur;
 
 typedef struct _BTreeNode *BTree;
 
@@ -13,12 +13,12 @@ struct _BTreeNode
 {
     BTree left;
     BTree right;
-    BTree parent;         // NOUVEAU - Pointeur vers le nœud père
-    Color color;          // NOUVEAU - Couleur du nœud (Rouge ou Noire)
+    BTree parent;         // Pointeur vers le nœud père
+    Couleur couleur;          //  Couleur du noeud (Rouge ou Noire)
     char data[1];
 };
 
-/* ========== Fonctions de base (conservées) ========== */
+/* ========== Fonctions de base========== */
 
 BTree btree_new();
 
