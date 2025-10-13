@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 /* Énumération pour les couleurs des nœuds */
-typedef enum { RED, BLACK } Color;
+typedef enum { ROUGE, NOIR } Color;
 
 /* Type pointeur vers un nœud d'arbre bicolore */
 typedef struct _BTreeNode *BTree;
