@@ -58,11 +58,11 @@ size_t btree_size(BTree btree);
 
 BTree btree_get_parent(BTree btree);
 
-Color btree_get_color(BTree btree);
+Couleur btree_get_couleur(BTree btree);
 
 bool btree_set_parent(BTree btree, BTree parent);
 
-bool btree_set_color(BTree btree, Color color);
+bool btree_set_couleur(BTree btree, Couleur couleur);
 
 /* ========== Opérations arbre bicolore ========== */
 

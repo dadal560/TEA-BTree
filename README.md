@@ -9,7 +9,7 @@ Implémentation et comparaison de performances entre arbres bicolores (Red-Black
 ```bash
 mkdir debug
 cd debug
-cmake ../../src/btree/ -DCMAKE_INSTALL_PREFIX=../tmp -DCMAKE_BUILD_TYPE=Debug
+cmake ../src/btree/ -DCMAKE_INSTALL_PREFIX=../tmp -DCMAKE_BUILD_TYPE=Debug
 make
 ```
 
@@ -18,3 +18,6 @@ make
 ```bash
 make install
 ```
+
+
+expliqué que la suppresssion pour le raport 

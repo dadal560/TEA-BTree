@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "btree-h"
+#include "btree.h"
 
 // Fonction de comparaison pour des entiers
 int compare_int(const void *a, const void *b) {
@@ -15,53 +15,38 @@ int compare_str(const void *a, const void *b) {
     const char *s2 = *(const char **)b;
     return strcmp(s1, s2);
 }
-
-// Affichage d’un nœud entier
-void print_noeud(void *a, void *b) {
-    if (!a) return;
-    Tree node = (Tree)a;
-    int val = *(int *)node->data;
-    printf("Valeur du nœud : %-3d | Balance : %d\n", val, node->balance);
+// Fonction pour imprimer un nœud
+void print_noeud(void *data, void *extra_data) {
+    int *val = (int *)data;
+    printf("%d ", *val);
 }
-
-// Affichage d’un nœud chaîne de caractères
-void print_noeud_str(void *a, void *b) {
-    if (!a) return;
-    Tree node = (Tree)a;
-    char *val = *(char **)node->data;
-    printf("Valeur du nœud : %-10s | Balance : %d\n", val, node->balance);
+// Fonction pour imprimer un nœud de chaîne de caractères
+void print_noeud_str(void *data, void *extra_data) {
+    const char *str = *(const char **)data;
+    printf("%s ", str);
 }
-
-// Affichage visuel de l’arbre (indentation selon la profondeur)
-void print_tree(Tree node, int level) {
-    if (!node) return;
-    print_tree(node->right, level + 1);
-    for (int i = 0; i < level; i++) printf("    ");
-    printf("%d (bal=%d)\n", *(int *)node->data, node->balance);
-    print_tree(node->left, level + 1);
+// Fonction pour imprimer l'arbre
+void print_tree(BTree btree, int level) {
+    if (btree) {
+        print_tree(btree->right, level + 1);
+        for (int i = 0; i < level; i++) {
+            printf("   ");
+        }
+        printf("%s (%s)\n", (char *)btree->data, btree->couleur == ROUGE ? "ROUGE" : "NOIR");
+        print_tree(btree->left, level + 1);
+    }
 }
 
 void test_arbre_bicolor(void) {
     int valeurs[] = {2, 4, 6, 8, 10, 12};
     BTree racine = NULL;
     for (int i = 0; i < sizeof(valeurs) / sizeof(valeurs[0]); i++) {
-        racine = btree_insert(racine, &valeurs[i], sizeof(int), compare_int);
-    }
+        racine = btree_insert_sorted(&racine, &valeurs[i], sizeof(int), compare_int);
+    }   
     printf("Arbre bicolore avec des entiers :\n");
-    btree_inorder(racine, print_noeud, NULL);
+    btree_post_order(racine, print_noeud, NULL);
     print_tree(racine, 0);
-    btree_free(racine);
-    printf("\n");
-    char *str_valeurs[] = {"cinq", "trois", "sept", "un", "neuf", "deux"};
-    BTree racine_str = NULL;
-    for (int i = 0; i < sizeof(str_valeurs) / sizeof(str_valeurs[0]); i++) {
-        racine_str = btree_insert(racine_str, &str_valeurs[i], sizeof(char *), compare_str);
-    }
-    printf("Arbre bicolore avec des chaînes de caractères :\n");
-    btree_inorder(racine_str, print_noeud_str, NULL);
-    print_tree(racine_str, 0);
-    btree_free(racine_str);
-
+    btree_delete(racine, NULL);
 }
 
 int main(void) {

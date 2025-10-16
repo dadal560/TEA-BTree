@@ -70,7 +70,7 @@ BTree btree_get_parent(BTree btree)
         return NULL;
 }
 
-Couleur btree_get_color(BTree btree)
+Couleur btree_get_couleur(BTree btree)
 {
     if (btree)
         return btree->couleur;
@@ -126,11 +126,11 @@ bool btree_set_parent(BTree btree, BTree parent)
         return false;
 }
 
-bool btree_set_color(BTree btree, Couleur color)
+bool btree_set_couleur(BTree btree, Couleur couleur)
 {
     if (btree)
     {
-        btree->couleur = color;
+        btree->couleur = couleur;
         return true;
     }
     else
