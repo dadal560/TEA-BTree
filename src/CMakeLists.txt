@@ -55,3 +55,7 @@ target_link_libraries(test-btree btree)
 enable_testing()
 # Ajout d'un test
 add_test(test-btree ./test-btree)
+
+add_executable(benchmark benchmark/benchmark.c tree-avl/tree-avl.c)
+add_dependencies(benchmark btree)
+target_link_libraries(benchmark btree)
