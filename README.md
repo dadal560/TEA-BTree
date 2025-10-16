@@ -9,7 +9,7 @@ Implémentation et comparaison de performances entre arbres bicolores (Red-Black
 ```bash
 mkdir debug
 cd debug
-cmake ../../src/tree-avl/ -DCMAKE_INSTALL_PREFIX=../tmp -DCMAKE_BUILD_TYPE=Debug
+cmake ../../src/btree/ -DCMAKE_INSTALL_PREFIX=../tmp -DCMAKE_BUILD_TYPE=Debug
 make
 ```
 
