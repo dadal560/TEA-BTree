@@ -116,7 +116,7 @@ void generer_graphique() {
     fflush(gnuplot);
     pclose(gnuplot);
 
-    printf("\n📊 Graphique généré : benchmark.png ✅\n");
+    printf("\nGraphique généré : benchmark.png \n");
 }
 
 int main() {
