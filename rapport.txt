@@ -1,0 +1,5 @@
+TEA-2025 : Arbres Équilibrés
+Étude de comparaison AVL / Bicolores (Red-Black)
+Année universitaire: 2025
+Formation: L3 Informatique - Structures de Données Avancées
+Enseignant: E-h ZAHZAH
