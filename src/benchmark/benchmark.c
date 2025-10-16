@@ -1,98 +1,128 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
+#include <time.h>
 #include "../tree-avl/tree-avl.h"
 #include "../btree/btree.h"
 
-// Tailles de test
 int test_sizes[] = {10, 50, 100, 150, 200, 300, 500, 750, 1000};
 int num_sizes = 9;
 
-// Structure pour dictionnaire (mot:définition)
 typedef struct {
     char mot[50];
     char definition[200];
 } Dictionnaire;
 
-// Fonction de comparaison pour des entiers
 int compare_int(const void *a, const void *b) {
-    return (*(int *)a - *(int *)b);
+    return (*(int*)a - *(int*)b);
 }
 
-// Fonction de comparaison pour dictionnaire (par mot)
 int compare_dict(const void *a, const void *b) {
-    const Dictionnaire *d1 = (const Dictionnaire *)a;
-    const Dictionnaire *d2 = (const Dictionnaire *)b;
+    const Dictionnaire *d1 = (const Dictionnaire*)a;
+    const Dictionnaire *d2 = (const Dictionnaire*)b;
     return strcmp(d1->mot, d2->mot);
 }
 
-void benchmark_trees() {
-    printf("Benchmark des arbres AVL et Bicolores\n");
-    printf("Taille\tAVL Insert (ms)\tBicolore Insert (ms)\tAVL Search (ms)\tBicolore Search (ms)\n");
+void benchmark_int() {
+    FILE *file = fopen("benchmark_int.dat", "w");
+    printf("\n=== Benchmark Entiers ===\n");
+    printf("Taille\tAVL Insert (ms)\tBicolore Insert (ms)\n");
 
     for (int i = 0; i < num_sizes; i++) {
         int size = test_sizes[i];
+        int *data = malloc(size * sizeof(int));
+        for (int j = 0; j < size; j++) data[j] = rand() % (size * 10);
 
-        // Génération des données aléatoires
-        int *data = (int *)malloc(size * sizeof(int));
-        for (int j = 0; j < size; j++) {
-            data[j] = rand() % (size * 10);
-        }
+        Tree avl = NULL;
+        clock_t t1 = clock();
+        for (int j = 0; j < size; j++)
+            tree_insert_avl(&avl, &data[j], sizeof(int), compare_int);
+        double avl_insert = (double)(clock() - t1) / CLOCKS_PER_SEC * 1000;
 
-        // === Benchmark AVL ===
-        TreeAVL avl_tree = NULL;
-        clock_t start_avl_insert = clock();
-        for (int j = 0; j < size; j++) {
-            tree_avl_insert(&avl_tree, &data[j], sizeof(int), compare_int);
-        }
-        clock_t end_avl_insert = clock();
+        BTree bt = NULL;
+        t1 = clock();
+        for (int j = 0; j < size; j++)
+            btree_insert(&bt, &data[j], sizeof(int), compare_int);
+        double btree_insert = (double)(clock() - t1) / CLOCKS_PER_SEC * 1000;
 
-        clock_t start_avl_search = clock();
-        for (int j = 0; j < size; j++) {
-            tree_avl_search(avl_tree, &data[j], compare_int);
-        }
-        clock_t end_avl_search = clock();
+        printf("%d\t%.3f\t\t%.3f\n", size, avl_insert, btree_insert);
+        fprintf(file, "%d %.3f %.3f\n", size, avl_insert, btree_insert);
 
-        double avl_insert_time = ((double)(end_avl_insert - start_avl_insert)) / CLOCKS_PER_SEC * 1000;
-        double avl_search_time = ((double)(end_avl_search - start_avl_search)) / CLOCKS_PER_SEC * 1000;
-
-        tree_avl_delete(avl_tree, NULL);
-
-        // === Benchmark Bicolore ===
-        BTree btree = NULL;
-        clock_t start_btree_insert = clock();
-        for (int j = 0; j < size; j++) {
-            btree_insert(&btree, &data[j], sizeof(int), compare_int);
-        }
-        clock_t end_btree_insert = clock();
-
-        clock_t start_btree_search = clock();
-        for (int j = 0; j < size; j++) {
-            btree_search(btree, &data[j], compare_int);
-        }
-        clock_t end_btree_search = clock();
-
-        double btree_insert_time = ((double)(end_btree_insert - start_btree_insert)) / CLOCKS_PER_SEC * 1000;
-        double btree_search_time = ((double)(end_btree_search - start_btree_search)) / CLOCKS_PER_SEC * 1000;
-
-        btree_delete(btree, NULL);
-
-        // === Affichage des résultats ===
-        printf("%d\t%.3f\t\t%.3f\t\t\t%.3f\t\t\t%.3f\n",
-               size,
-               avl_insert_time,
-               btree_insert_time,
-               avl_search_time,
-               btree_search_time);
-
+        tree_delete(avl, NULL);
+        btree_delete(bt, NULL);
         free(data);
     }
+
+    fclose(file);
 }
+
+void benchmark_dict() {
+    FILE *file = fopen("benchmark_dict.dat", "w");
+    printf("\n=== Benchmark Dictionnaire ===\n");
+    printf("Taille\tAVL Insert (ms)\tBicolore Insert (ms)\n");
+
+    for (int i = 0; i < num_sizes; i++) {
+        int size = test_sizes[i];
+        Dictionnaire *data = malloc(size * sizeof(Dictionnaire));
+
+        for (int j = 0; j < size; j++) {
+            sprintf(data[j].mot, "mot%d", rand());
+            sprintf(data[j].definition, "definition%d", j);
+        }
+
+        Tree avl = NULL;
+        clock_t t1 = clock();
+        for (int j = 0; j < size; j++)
+            tree_insert_avl(&avl, &data[j], sizeof(Dictionnaire), compare_dict);
+        double avl_insert = (double)(clock() - t1) / CLOCKS_PER_SEC * 1000;
+
+        BTree bt = NULL;
+        t1 = clock();
+        for (int j = 0; j < size; j++)
+            btree_insert(&bt, &data[j], sizeof(Dictionnaire), compare_dict);
+        double btree_insert = (double)(clock() - t1) / CLOCKS_PER_SEC * 1000;
+
+        printf("%d\t%.3f\t\t%.3f\n", size, avl_insert, btree_insert);
+        fprintf(file, "%d %.3f %.3f\n", size, avl_insert, btree_insert);
+
+        tree_delete(avl, NULL);
+        btree_delete(bt, NULL);
+        free(data);
+    }
+
+    fclose(file);
+}
+
+void generer_graphique() {
+    FILE *gnuplot = popen("gnuplot", "w");
+    if (gnuplot == NULL) {
+        perror("Erreur lors du lancement de gnuplot");
+        return;
+    }
+
+    fprintf(gnuplot,
+        "set terminal png size 800,600\n"
+        "set output 'benchmark.png'\n"
+        "set title 'Comparaison AVL vs Bicolore'\n"
+        "set xlabel 'Nombre de données'\n"
+        "set ylabel 'Temps (ms)'\n"
+        "set grid\n"
+        "plot 'benchmark_int.dat' using 1:2 with linespoints title 'AVL - Int',\\\n"
+        "     'benchmark_int.dat' using 1:3 with linespoints title 'Bicolore - Int',\\\n"
+        "     'benchmark_dict.dat' using 1:2 with linespoints title 'AVL - Dict',\\\n"
+        "     'benchmark_dict.dat' using 1:3 with linespoints title 'Bicolore - Dict',\\\n"
+        "     x with lines title 'f(x)=x'\n"
+    );
+    fflush(gnuplot);
+    pclose(gnuplot);
+
+    printf("\n📊 Graphique généré : benchmark.png ✅\n");
+}
+
 int main() {
     srand((unsigned int)time(NULL));
-
-    benchmark_trees();
-
+    benchmark_int();
+    benchmark_dict();
+    generer_graphique();
     return 0;
 }
