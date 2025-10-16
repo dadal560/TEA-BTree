@@ -311,7 +311,7 @@ static void btree_insert_fixup(BTree *root, BTree z)
     (*root)->couleur = NOIR;
 }
 
-bool btree_insert_sorted(BTree *pbtree, const void *data, size_t size,
+bool btree_insert(BTree *pbtree, const void *data, size_t size,
                          int (*compare)(const void *, const void *))
 {
     BTree z = btree_create(data, size);
@@ -583,7 +583,7 @@ int btree_sort(void *array, size_t length, size_t size,
     pointer = array;
     for (i = 0; i < length; i++)
     {
-        if (btree_insert_sorted(&btree, pointer, size, compare))
+        if (btree_insert(&btree, pointer, size, compare))
             pointer += size;
         else
         {
