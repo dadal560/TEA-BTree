@@ -7,6 +7,7 @@
 
 static Tree rotate_left(Tree A);
 static Tree rotate_right(Tree A);
+static void tree_update_balance(Tree node);
 static Tree tree_balance(Tree root);
 
 /*--------------------------------------------------------------------*/
@@ -271,74 +272,75 @@ compare))
 //Fonctions AVL
 
 /**
- * Insertion interne AVL.
- * `hauteur_a_augmenté` : true si la hauteur du sous-arbre a augmenté.
+ * Insère une valeur dans l'arbre AVL et rééquilibre si nécessaire.
  */
-static bool tree_insert_avl_interne(Tree *ptree, const void *data, int size,
-                                   int (*compare)(const void *, const void *),
-                                   bool *hauteur_a_augmenté) {
-    if (!*ptree) {
+bool tree_insert_avl(Tree *ptree, const void *data, int size, int (*compare)(const void *, const void *)) {
+    // Cas de base : création du premier nœud
+    if (*ptree == NULL) {
         Tree new_node = tree_create(data, size);
-        if (!new_node) return false;
-        new_node->balance = 0;
+        if (new_node == NULL) {
+            return false;
+        }
         *ptree = new_node;
-        *hauteur_a_augmenté = true;
         return true;
     }
 
+    // Insertion récursive dans la branche gauche ou droite
     int cmp = compare(data, (*ptree)->data);
-
     if (cmp < 0) {
-        if (!tree_insert_avl_interne(&(*ptree)->left, data, size, compare, hauteur_a_augmenté))
-            return false;
+        if (!tree_insert_avl(&(*ptree)->left, data, size, compare)) return false;
         if ((*ptree)->left) (*ptree)->left->parent = *ptree;
-        if (*hauteur_a_augmenté) (*ptree)->balance -= 1;
     } else if (cmp > 0) {
-        if (!tree_insert_avl_interne(&(*ptree)->right, data, size, compare, hauteur_a_augmenté))
-            return false;
+        if (!tree_insert_avl(&(*ptree)->right, data, size, compare)) return false;
         if ((*ptree)->right) (*ptree)->right->parent = *ptree;
-        if (*hauteur_a_augmenté) (*ptree)->balance += 1;
-    } else {
-        *hauteur_a_augmenté = false;
-        return true; // déjà présent
     }
 
-    // Rééquilibrage si nécessaire
-    if ((*ptree)->balance < -1 || (*ptree)->balance > 1) {
-        *ptree = tree_balance(*ptree);
-        *hauteur_a_augmenté = false;
-    } else {
-        if ((*ptree)->balance == 0)
-            *hauteur_a_augmenté = false;
-    }
+    // Mise à jour de la balance et rééquilibrage
+    tree_update_balance(*ptree);
+    *ptree = tree_balance(*ptree);
 
     return true;
 }
 
-/* Wrapper public */
-bool tree_insert_avl(Tree *ptree, const void *data, int size,
-                     int (*compare)(const void *, const void *)) {
-    bool hauteur_a_augmenté = false;
-    return tree_insert_avl_interne(ptree, data, size, compare, &hauteur_a_augmenté);
-}
-
-/* Recherche AVL */
+/**
+ * Recherche un élément dans un arbre AVL.
+ */
 Tree tree_search_avl(Tree root, const void *data, int (*compare)(const void *, const void *)) {
-    if (!root) return NULL;
+    // Parcours récursif ou itératif (ici récursif)
+    if (root == NULL) {
+        return NULL; // Élément non trouvé
+    }
+
     int cmp = compare(data, root->data);
-    if (cmp == 0) return root;
-    else if (cmp < 0) return tree_search_avl(root->left, data, compare);
-    else return tree_search_avl(root->right, data, compare);
+
+    if (cmp == 0) {
+        // Élément trouvé
+        return root;
+    } else if (cmp < 0) {
+        // Recherche dans le sous-arbre gauche
+        return tree_search_avl(root->left, data, compare);
+    } else {
+        // Recherche dans le sous-arbre droit
+        return tree_search_avl(root->right, data, compare);
+    }
 }
 
-/* Suppression AVL */
+
+/**
+ * Supprime une valeur de l'arbre AVL et rééquilibre l’arbre si besoin.
+ */
 Tree tree_delete_avl(Tree root,
                      const void *data,
                      int (*compare)(const void *, const void *),
-                     void (*delete)(void *)) {
-    if (!root) return NULL;
+                     void (*delete)(void *))
+{
+    if (root == NULL) {
+        return root; // Élément non trouvé
+    }
+
     int cmp = compare(data, root->data);
 
+    // Recherche récursive de la valeur à supprimer
     if (cmp < 0) {
         root->left = tree_delete_avl(root->left, data, compare, delete);
         if (root->left) root->left->parent = root;
@@ -346,72 +348,116 @@ Tree tree_delete_avl(Tree root,
         root->right = tree_delete_avl(root->right, data, compare, delete);
         if (root->right) root->right->parent = root;
     } else {
+        // Nœud trouvé
         if (delete) delete(root->data);
-        if (!root->left || !root->right) {
-            Tree tmp = root->left ? root->left : root->right;
-            if (!tmp) { free(root); return NULL; }
-            tmp->parent = root->parent;
-            free(root);
-            return tmp;
+
+        // Cas 1 : aucun enfant
+        // Cas 2 : un seul enfant
+        if (root->left == NULL || root->right == NULL) {
+            Tree temp = root->left ? root->left : root->right;
+            if (temp == NULL) {
+                free(root);
+                return NULL;
+            } else {
+                temp->parent = root->parent;
+                free(root);
+                return temp;
+            }
         } else {
-            Tree succ = root->right;
-            while (succ->left) succ = succ->left;
-            memcpy(root->data, succ->data, sizeof(int));
-            root->right = tree_delete_avl(root->right, succ->data, compare, delete);
+            // Cas 3 : deux enfants
+            // On prend le successeur (le plus petit dans le sous-arbre droit)
+            Tree successor = root->right;
+            while (successor->left != NULL) {
+                successor = successor->left;
+            }
+            // On copie la valeur du successeur
+            memcpy(root->data, successor->data, sizeof(int));
+            // On supprime ensuite le successeur
+            root->right = tree_delete_avl(root->right, successor->data, compare, delete);
             if (root->right) root->right->parent = root;
         }
     }
 
-    // Rééquilibrage
-    if (root->balance < -1 || root->balance > 1)
-        return tree_balance(root);
-
-    return root;
+    // Mise à jour et rééquilibrage après suppression
+    tree_update_balance(root);
+    return tree_balance(root);
 }
 
-/* Rotations */
+/**
+ * Rotation gauche pour rééquilibrer après une insertion ou suppression.
+ */
 static Tree rotate_left(Tree A) {
+    if (!A || !A->right) return A;
+    
     Tree B = A->right;
+    int oldBalA = A->balance;
+    int oldBalB = B->balance;
+    
     A->right = B->left;
     if (B->left) B->left->parent = A;
+
     B->left = A;
     B->parent = A->parent;
     A->parent = B;
-
-    // Mise à jour balances
-    int left_bal = A->balance;
-    int right_bal = B->balance;
-    A->balance = left_bal - 1 - (right_bal > 0 ? right_bal : 0);
-    B->balance = right_bal - 1 + (A->balance < 0 ? A->balance : 0);
-
+    
+    // Mise à jour des balances
+    A->balance = oldBalA - 1 - MAX(oldBalB, 0);
+    B->balance = oldBalB - 1 + MIN(A->balance, 0);
+    
     return B;
 }
 
+/**
+ * Rotation droite pour rééquilibrer après une insertion ou suppression.
+ */
 static Tree rotate_right(Tree A) {
+    if (!A || !A->left) return A;
+    
     Tree B = A->left;
+    int oldBalA = A->balance;
+    int oldBalB = B->balance;
+    
     A->left = B->right;
     if (B->right) B->right->parent = A;
+
     B->right = A;
     B->parent = A->parent;
     A->parent = B;
-
-    int left_bal = A->balance;
-    int right_bal = B->balance;
-    A->balance = left_bal + 1 - (right_bal < 0 ? right_bal : 0);
-    B->balance = right_bal + 1 + (A->balance > 0 ? A->balance : 0);
-
+    
+    // Mise à jour des balances
+    A->balance = oldBalA + 1 - MIN(oldBalB, 0);
+    B->balance = oldBalB + 1 + MAX(A->balance, 0);
+    
     return B;
 }
 
-/* Rééquilibrage */
+/**
+ * Met à jour le facteur de balance d’un nœud (hauteur droite - hauteur gauche).
+ */
+static void tree_update_balance(Tree node) {
+    if (node) {
+        int left_height = node->left ? tree_height(node->left) : 0;
+        int right_height = node->right ? tree_height(node->right) : 0;
+        node->balance = right_height - left_height;
+    }
+}
+
+/**
+ * Rééquilibre l’arbre en appliquant les rotations nécessaires.
+ */
 static Tree tree_balance(Tree root) {
+    // Cas déséquilibre vers la droite
     if (root->balance > 1) {
-        if (root->right && root->right->balance < 0)
+        if (root->right && root->right->balance < 0) {
             root->right = rotate_right(root->right);
+        }
         return rotate_left(root);
-    } else if (root->balance < -1) {
-        if (root->left && root->left->balance > 0)
+    }
+    // Cas déséquilibre vers la gauche
+    else if (root->balance < -1) {
+        if (root->left && root->left->balance > 0) {
             root->left = rotate_left(root->left);
+        }
         return rotate_right(root);
     }
     return root;
