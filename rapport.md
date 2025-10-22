@@ -5,17 +5,7 @@
 
 ---
 
-### Groupe de travail
-- [Nom Prénom Étudiant 1]
-- [Nom Prénom Étudiant 2]
-- [Nom Prénom Étudiant 3]
-- [Nom Prénom Étudiant 4]
-
-### Auto-évaluation
-- [Étudiant 1] : A
-- [Étudiant 2] : A
-- [Étudiant 3] : A
-- [Étudiant 4] : A
+Gwendal Henry
 
 ---
 
