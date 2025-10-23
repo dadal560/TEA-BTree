@@ -21,6 +21,7 @@ make install
 
 ### Test
 
-
-
-expliqué que la suppresssion pour le raport 
+```bash
+./test-btree
+./benchmark
+```
