@@ -25,7 +25,7 @@ int compare_dict(const void *a, const void *b) {
 
 void benchmark_int() {
     FILE *file = fopen("benchmark_int.dat", "w");
-    printf("\n=== Benchmark Entiers ===\n");
+    printf("\nBenchmark Entiers:\n");
     printf("Taille\tAVL Insert (ms)\tBicolore Insert (ms)\n");
 
     for (int i = 0; i < num_sizes; i++) {
@@ -58,7 +58,7 @@ void benchmark_int() {
 
 void benchmark_dict() {
     FILE *file = fopen("benchmark_dict.dat", "w");
-    printf("\n=== Benchmark Dictionnaire ===\n");
+    printf("\nBenchmark Dictionnaire:\n");
     printf("Taille\tAVL Insert (ms)\tBicolore Insert (ms)\n");
 
     for (int i = 0; i < num_sizes; i++) {
@@ -107,16 +107,16 @@ void generer_graphique() {
         "set xlabel 'Nombre de données'\n"
         "set ylabel 'Temps (ms)'\n"
         "set grid\n"
-        "plot 'benchmark_int.dat' using 1:2 with linespoints title 'AVL - Int',\\\n"
-        "     'benchmark_int.dat' using 1:3 with linespoints title 'Bicolore - Int',\\\n"
-        "     'benchmark_dict.dat' using 1:2 with linespoints title 'AVL - Dict',\\\n"
-        "     'benchmark_dict.dat' using 1:3 with linespoints title 'Bicolore - Dict',\\\n"
-        "     x with lines title 'f(x)=x'\n"
+        "plot 'benchmark_int.dat' using 1:2 with linespoints lw 4 title 'AVL - Int',\\\n"
+        "     'benchmark_int.dat' using 1:3 with linespoints lw 4 title 'Bicolore - Int',\\\n"
+        "     'benchmark_dict.dat' using 1:2 with linespoints lw 4 title 'AVL - Dict',\\\n"
+        "     'benchmark_dict.dat' using 1:3 with linespoints lw 4 title 'Bicolore - Dict',\\\n"
+        "     x with lines lw 4 title 'f(x)=x'\n"
     );
     fflush(gnuplot);
     pclose(gnuplot);
 
-    printf("\nGraphique généré : benchmark.png \n");
+    printf("\nGraphique généré : benchmark.png\n");
 }
 
 int main() {
