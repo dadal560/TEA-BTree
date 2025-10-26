@@ -25,3 +25,5 @@ make install
 ./test-btree
 ./benchmark
 ```
+
+graphique benchmark.png
