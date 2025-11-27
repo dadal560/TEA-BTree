@@ -105,13 +105,15 @@ void generer_graphique() {
         "set output 'benchmark.png'\n"
         "set title 'Comparaison AVL vs Bicolore'\n"
         "set xlabel 'Nombre de données'\n"
-        "set ylabel 'Temps (ms)'\n"
+        "set ylabel 'Temps (seconde)'\n"
         "set grid\n"
-        "plot 'benchmark_int.dat' using 1:2 with linespoints lw 4 title 'AVL - Int',\\\n"
-        "     'benchmark_int.dat' using 1:3 with linespoints lw 4 title 'Bicolore - Int',\\\n"
-        "     'benchmark_dict.dat' using 1:2 with linespoints lw 4 title 'AVL - Dict',\\\n"
-        "     'benchmark_dict.dat' using 1:3 with linespoints lw 4 title 'Bicolore - Dict',\\\n"
-        "     x with lines lw 4 title 'f(x)=x'\n"
+        "set key left top\n"
+
+        "plot 'benchmark_int.dat' using 1:($2/1000) with linespoints lw 2 title 'AVL - Int',\\\n"
+        "     'benchmark_int.dat' using 1:($3/1000) with linespoints lw 2 title 'Bicolore - Int',\\\n"
+        "     'benchmark_dict.dat' using 1:($2/1000) with linespoints lw 2 title 'AVL - Dict',\\\n"
+        "     'benchmark_dict.dat' using 1:($3/1000) with linespoints lw 2 title 'Bicolore - Dict',\\\n"
+        "     x * 0.00001 with lines dt 2 lw 2 title 'f(x)=x'\n"
     );
     fflush(gnuplot);
     pclose(gnuplot);
@@ -126,3 +128,4 @@ int main() {
     generer_graphique();
     return 0;
 }
+

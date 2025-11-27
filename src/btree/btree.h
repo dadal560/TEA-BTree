@@ -18,7 +18,7 @@ struct _BTreeNode
     char data[1];
 };
 
-/* ========== Fonctions de base========== */
+/* Fonctions de base */
 
 BTree btree_new();
 
@@ -54,7 +54,6 @@ size_t btree_height(BTree btree);
 
 size_t btree_size(BTree btree);
 
-/* ========== Nouvelles fonctions pour parent et couleur ========== */
 
 BTree btree_get_parent(BTree btree);
 
@@ -64,7 +63,7 @@ bool btree_set_parent(BTree btree, BTree parent);
 
 bool btree_set_couleur(BTree btree, Couleur couleur);
 
-/* ========== Opérations arbre bicolore ========== */
+/*  Opérations arbre bicolore  */
 
 /**
  * Insère une donnée dans l'arbre bicolore avec rééquilibrage
@@ -111,7 +110,7 @@ BTree btree_minimum(BTree btree);
 
 BTree btree_maximum(BTree btree);
 
-/* ========== Tri (conservé) ========== */
+/*  Tri */
 
 int btree_sort(void *array,
                size_t length,
