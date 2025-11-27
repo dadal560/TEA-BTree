@@ -100,7 +100,7 @@ bool btree_delete_node(BTree *pbtree,
                        const void *data,
                        int (*compare)(const void *, const void *));
 
-/* ========== Fonctions auxiliaires pour arbre bicolore ========== */
+/*  Fonctions auxiliaires pour arbre bicolore  */
 
 void btree_rotate_left(BTree *root, BTree node);
 
